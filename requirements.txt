@@ -1,3 +1,0 @@
-pygame
-pytest_timeout
-the_snake
