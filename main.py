@@ -11,7 +11,7 @@ SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 GRID_SIZE = 20
 
-GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE   # 32
+GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE  # 32
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE  # 24
 
 # Цвета
@@ -73,7 +73,7 @@ class Snake(GameObject):
         super().__init__(position=start, body_color=GREEN)
         self.positions: List[Position] = [start]  # голова = первый элемент
         self.length = 1
-        self.direction: Direction = (1, 0)        # вправо
+        self.direction: Direction = (1, 0)  # вправо
         self.next_direction: Optional[Direction] = None
 
     def get_head_position(self) -> Position:
