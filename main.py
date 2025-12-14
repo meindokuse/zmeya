@@ -6,17 +6,13 @@ from typing import List, Optional, Tuple
 
 import pygame
 
-# Константы поля
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 GRID_SIZE = 20
 
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
-
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
 
-
-# Цвета
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
@@ -26,27 +22,27 @@ Direction = Tuple[int, int]
 
 
 def to_pixel(cell: Position) -> Position:
-    """Преобразует координату клетки (x, y) в пиксельные координаты."""
+    """Convert grid cell coordinates (x, y) to pixel coordinates."""
     return cell[0] * GRID_SIZE, cell[1] * GRID_SIZE
 
 
 @dataclass
 class GameObject:
-    """Базовый игровой объект: позиция на сетке и цвет.
+    """Base game object that has a position and a body color.
 
-    Метод draw() в базовом классе не рисует ничего и служит для переопределения.
+    The draw() method is a stub here and must be overridden in subclasses.
     """
 
     position: Position
     body_color: Tuple[int, int, int]
 
     def draw(self, surface: pygame.Surface) -> None:
-        """Отрисовка объекта. Должна быть переопределена в наследниках."""
-        pass  # базовый класс не знает, как себя рисовать
+        """Draw the object on the surface."""
+        pass
 
 
 class Apple(GameObject):
-    """Яблоко: появляется в случайной свободной клетке."""
+    """Apple that appears in a random free cell."""
 
     def __init__(self, occupied: Optional[set[Position]] = None):
         super().__init__(position=(0, 0), body_color=RED)
@@ -56,7 +52,7 @@ class Apple(GameObject):
         self,
         occupied: Optional[set[Position]] = None,
     ) -> None:
-        """Выбирает случайную позицию яблока так, чтобы не попасть на змейку."""
+        """Pick a random position not occupied by the snake."""
         occupied = occupied or set()
         all_cells = {
             (x, y)
@@ -67,7 +63,7 @@ class Apple(GameObject):
         self.position = choice(free_cells) if free_cells else (0, 0)
 
     def draw(self, surface: pygame.Surface) -> None:
-        """Рисует яблоко как закрашенный квадрат 1x1 клетку."""
+        """Draw the apple as a filled 1-cell rectangle."""
         pygame.draw.rect(
             surface,
             self.body_color,
@@ -76,28 +72,28 @@ class Apple(GameObject):
 
 
 class Snake(GameObject):
-    """Змейка: хранит список сегментов (клетки), двигается и растёт."""
+    """Snake that moves on the grid and grows after eating an apple."""
 
     def __init__(self):
         start = (GRID_WIDTH // 2, GRID_HEIGHT // 2)
         super().__init__(position=start, body_color=GREEN)
-        self.positions: List[Position] = [start]  # голова = первый элемент
+        self.positions: List[Position] = [start]
         self.length = 1
-        self.direction: Direction = (1, 0)  # вправо
+        self.direction: Direction = (1, 0)
         self.next_direction: Optional[Direction] = None
 
     def get_head_position(self) -> Position:
-        """Возвращает координаты головы."""
+        """Return the snake head position."""
         return self.positions[0]
 
     def update_direction(self) -> None:
-        """Применяет следующее направление, если оно задано."""
+        """Apply next_direction if it was set by key handling."""
         if self.next_direction is not None:
             self.direction = self.next_direction
             self.next_direction = None
 
     def move(self) -> None:
-        """Сдвигает змейку на 1 клетку (wrap-around по границам)."""
+        """Move the snake by one cell with wrap-around."""
         head_x, head_y = self.get_head_position()
         dx, dy = self.direction
 
@@ -111,7 +107,7 @@ class Snake(GameObject):
             self.positions.pop()
 
     def reset(self) -> None:
-        """Сбрасывает змейку в начальное состояние (после самоукуса)."""
+        """Reset the snake to its initial state."""
         start = (GRID_WIDTH // 2, GRID_HEIGHT // 2)
         self.positions = [start]
         self.length = 1
@@ -119,7 +115,7 @@ class Snake(GameObject):
         self.next_direction = None
 
     def draw(self, surface: pygame.Surface) -> None:
-        """Рисует все сегменты змейки."""
+        """Draw the snake segments."""
         for cell in self.positions:
             pygame.draw.rect(
                 surface,
@@ -129,7 +125,7 @@ class Snake(GameObject):
 
 
 def handle_keys(snake: Snake, event: pygame.event.Event) -> None:
-    """Обрабатывает нажатия клавиш и задаёт направление движения змейки."""
+    """Handle arrow keys and update snake.next_direction."""
     if event.type != pygame.KEYDOWN:
         return
 
@@ -139,7 +135,6 @@ def handle_keys(snake: Snake, event: pygame.event.Event) -> None:
         (0, 1): (0, -1),
         (0, -1): (0, 1),
     }
-
     mapping = {
         pygame.K_UP: (0, -1),
         pygame.K_DOWN: (0, 1),
@@ -153,7 +148,7 @@ def handle_keys(snake: Snake, event: pygame.event.Event) -> None:
 
 
 def main() -> None:
-    """Запускает игру."""
+    """Run the game loop."""
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Изгиб Питона')
