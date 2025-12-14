@@ -34,6 +34,7 @@ class GameObject:
 
     Метод draw() в базовом классе не рисует ничего и служит для переопределения.
     """
+
     position: Position
     body_color: Tuple[int, int, int]
 
@@ -49,12 +50,19 @@ class Apple(GameObject):
         super().__init__(position=(0, 0), body_color=RED)
         self.randomize_position(occupied=occupied)
 
-    def randomize_position(self, occupied: Optional[set[Position]] = None) -> None:
+    def randomize_position(
+        self,
+        occupied: Optional[set[Position]] = None,
+    ) -> None:
         """Выбирает случайную позицию яблока так, чтобы не попасть на змейку."""
         occupied = occupied or set()
-        all_cells = {(x, y) for x in range(GRID_WIDTH) for y in range(GRID_HEIGHT)}
+        all_cells = {
+            (x, y)
+            for x in range(GRID_WIDTH)
+            for y in range(GRID_HEIGHT)
+        }
         free_cells = tuple(all_cells - occupied)
-        self.position = choice(free_cells) if free_cells else (0, 0)  # fallback
+        self.position = choice(free_cells) if free_cells else (0, 0)
 
     def draw(self, surface: pygame.Surface) -> None:
         """Рисует яблоко как закрашенный квадрат 1x1 клетку."""
@@ -91,7 +99,10 @@ class Snake(GameObject):
         head_x, head_y = self.get_head_position()
         dx, dy = self.direction
 
-        new_head = ((head_x + dx) % GRID_WIDTH, (head_y + dy) % GRID_HEIGHT)
+        new_head = (
+            (head_x + dx) % GRID_WIDTH,
+            (head_y + dy) % GRID_HEIGHT,
+        )
         self.positions.insert(0, new_head)
 
         if len(self.positions) > self.length:
@@ -120,8 +131,12 @@ def handle_keys(snake: Snake, event: pygame.event.Event) -> None:
     if event.type != pygame.KEYDOWN:
         return
 
-    # запрет разворота назад
-    opposites = {(1, 0): (-1, 0), (-1, 0): (1, 0), (0, 1): (0, -1), (0, -1): (0, 1)}
+    opposites = {
+        (1, 0): (-1, 0),
+        (-1, 0): (1, 0),
+        (0, 1): (0, -1),
+        (0, -1): (0, 1),
+    }
 
     mapping = {
         pygame.K_UP: (0, -1),
@@ -139,7 +154,7 @@ def main() -> None:
     """Запускает игру."""
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Изгиб Питона")
+    pygame.display.set_caption('Изгиб Питона')
     clock = pygame.time.Clock()
 
     snake = Snake()
@@ -147,7 +162,7 @@ def main() -> None:
 
     running = True
     while running:
-        clock.tick(20)  # не быстрее 20 кадров/шагов в секунду [web:496]
+        clock.tick(20)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -160,17 +175,14 @@ def main() -> None:
         snake.update_direction()
         snake.move()
 
-        # Съели яблоко → растём и переносим яблоко на свободную клетку
         if snake.get_head_position() == apple.position:
             snake.length += 1
             apple.randomize_position(occupied=set(snake.positions))
 
-        # Самоукус → сброс (в классике "игра заканчивается", но в задании: reset)
         if snake.get_head_position() in snake.positions[1:]:
             snake.reset()
             apple.randomize_position(occupied=set(snake.positions))
 
-        # Отрисовка
         screen.fill(BLACK)
         apple.draw(screen)
         snake.draw(screen)
@@ -179,5 +191,5 @@ def main() -> None:
     pygame.quit()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
